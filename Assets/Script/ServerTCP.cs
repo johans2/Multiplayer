@@ -90,6 +90,7 @@ public class Client {
             else {
                 byte[] dataBuffer = new byte[received];
                 Array.Copy(_buffer, dataBuffer, received);
+                ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer);
                 socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallback), socket);
             }
         }

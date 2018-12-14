@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClientHandleNetworkData {
+public class ServerHandleNetworkData {
 
-    private delegate void PacketHandler(byte[] data);
+    private delegate void PacketHandler(int index, byte[] data);
     private static Dictionary<int, PacketHandler> packets;
 
     public static void InitializePackageHandlers() {
         Logger.Log("Initializing network package handlers.");
 
         packets = new Dictionary<int, PacketHandler> {
-            { (int)ServerPackets.SConnectionOK, HandleConnectionOK }
-
+            { (int)ClientPackets.CThankYou, HandleThankYou }
         };
     }
 
-    public static void HandleNetworkInformation(byte[] data) {
+    public static void HandleNetworkInformation(int index, byte[] data) {
         int packetNum;
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
@@ -26,11 +24,11 @@ public class ClientHandleNetworkData {
         PacketHandler handler;
 
         if(packets.TryGetValue(packetNum, out handler)) {
-            handler.Invoke(data);
+            handler.Invoke(index, data);
         }
     }
 
-    private static void HandleConnectionOK(byte[] data) {
+    private static void HandleThankYou(int index, byte[] data) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
         buffer.ReadInteger();
@@ -38,7 +36,6 @@ public class ClientHandleNetworkData {
         buffer.Dispose();
 
         Logger.Log(msg);
-
-        ClientTCP.ThankYouServer();
     }
+
 }

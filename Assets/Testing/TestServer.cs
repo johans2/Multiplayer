@@ -5,7 +5,7 @@ using UnityEngine;
 public class TestServer : MonoBehaviour {
     
 	void Start () {
+        ServerHandleNetworkData.InitializePackageHandlers();
         ServerTCP.SetupServer();
-
 	}
 }
