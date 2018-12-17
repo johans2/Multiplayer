@@ -5,7 +5,8 @@ using System;
 
 public class ClientAPI : MonoBehaviour {
 
-    private Dictionary<int, SyncedBehaviour> syncedBehaviours = new Dictionary<int, SyncedBehaviour>();
+    public static List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
+
 
     private void RequestSpawnObject(Action<GameObject> gameObject) {
         throw new NotImplementedException();
@@ -15,7 +16,7 @@ public class ClientAPI : MonoBehaviour {
         throw new NotImplementedException();
     }
 
-    private void DeserializeFrame(byte[] frameData) {
+    public static void DeserializeFrame(byte[] frameData) {
 
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(frameData);
@@ -31,17 +32,30 @@ public class ClientAPI : MonoBehaviour {
             byte[] data = buffer.ReadBytes(dataSize);
 
             // Get the object from the synced object list
-            SyncedBehaviour behaviour;
-            if(!syncedBehaviours.TryGetValue(id, out behaviour)) {
-                Debug.LogWarning("Receiving information about a synced objects that does not exist on this client.");
+            SyncedBehaviour behaviour = GetSyncedBehaviour(id);
+            
+            if(behaviour == null) {
+                Logger.Log("Receiving information about a synced objects that does not exist on this client.");
                 continue;
             }
-
-            behaviour.Deserialize(data);
+            else {
+                behaviour.Deserialize(data);
+            }
         }
 
+        //Debug.Log(string.Format("Received data for {0} objects", numSyncedBehaviours));
+        
+    }
 
+    private static SyncedBehaviour GetSyncedBehaviour(int id) {
 
+        foreach(var syncedBehaviour in syncedBehaviours) {
+            if(syncedBehaviour.ID == id) {
+                return syncedBehaviour;
+            }
+        }
+
+        return null;
 
     }
 

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class ClientHandleNetworkData {
 
+    public ClientAPI clientAPI; // TODO: make better reference.
+
     private delegate void PacketHandler(byte[] data);
     private static Dictionary<int, PacketHandler> packets;
 
@@ -43,9 +45,7 @@ public class ClientHandleNetworkData {
     }
 
     private static void HandleFrameUpdate(byte[] data) {
-        // size || |id|size| .... data .... |id|size| .... data ....
-        
-
-
+        // Send to clietn api..?
+        ClientAPI.DeserializeFrame(data);
     }
 }

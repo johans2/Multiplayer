@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class SyncedBehaviour : MonoBehaviour {
 
-    public int ID { get; private set; }
+    public int ID;
     public int Owner { get; private set; }
     public bool IsControlledByMe { get; private set; }
     

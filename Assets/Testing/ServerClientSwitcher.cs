@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class ServerClientSwitcher : MonoBehaviour {
 
+    public List<SyncedBehaviour> testObjects = new List<SyncedBehaviour>();
     public bool isServer;
 
 	void Start () {
         if(isServer) {
-            gameObject.AddComponent<TestServer>();
+            TestServer s = gameObject.AddComponent<TestServer>();
+            s.testObjects = testObjects;
         }
         else {
-            gameObject.AddComponent<TestClient>();
+            TestClient c = gameObject.AddComponent<TestClient>();
+            c.testObjects = testObjects;
         }
 	}
 }

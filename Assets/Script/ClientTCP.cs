@@ -80,4 +80,9 @@ public class ClientTCP {
         buffer.Dispose();
     }
 
+    public static void Disconnect() {
+        Debug.Log("Disconnecting client");
+        _clientSocket.Close();
+    }
+
 }

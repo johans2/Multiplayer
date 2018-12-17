@@ -3,12 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ServerAPI : MonoBehaviour {
-
-
-
-    private List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
+    
+    public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
 
     int objectID = 0;
+
+    int sendFrame = 10;
+    int frame = 0;
+
+    private void LateUpdate() {
+        frame++;
+
+        if(frame == sendFrame) {
+            SerializeFrame();
+            frame = 0;
+        }
+    }
 
     public static void SpawnObject(GameObject prefab) {
         PacketBuffer buffer = new PacketBuffer();
@@ -43,8 +53,9 @@ public class ServerAPI : MonoBehaviour {
             buffer.WriteBytes(data);
         }
 
-        ServerTCP.SendData(buffer.ToArray());
+        //Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numSyncedBehaviours));
 
+        ServerTCP.SendData(buffer.ToArray());
     }
 
     
