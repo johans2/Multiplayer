@@ -64,6 +64,13 @@ public class PacketBuffer : IDisposable {
         _buffUpdate = true;
     }
 
+    public void WriteVector3(Vector3 input) {
+        _bufferList.AddRange(BitConverter.GetBytes(input.x));
+        _bufferList.AddRange(BitConverter.GetBytes(input.y));
+        _bufferList.AddRange(BitConverter.GetBytes(input.z));
+        _buffUpdate = true;
+    }
+
     // Read data
     public int ReadInteger(bool peek = true) {
         if(_bufferList.Count > _readPos) {
@@ -153,6 +160,10 @@ public class PacketBuffer : IDisposable {
             _readPos += length;
         }
         return value;
+    }
+
+    public Vector3 ReadVector3(bool peek = true) {
+        return new Vector3(ReadFloat(peek), ReadFloat(peek), ReadFloat(peek));
     }
 
     // IDisposable
