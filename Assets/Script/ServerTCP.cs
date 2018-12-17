@@ -44,6 +44,14 @@ public class ServerTCP {
         }
     }
 
+    public static void SendData(byte[] bytes) {
+        foreach(var client in _clients) {
+            if(client.socket != null) {
+                SendDataTo(client.index, bytes);
+            }
+        }
+    }
+
     public static void SendDataTo(int index, byte[] data) {
         byte[] sizeInfo = new byte[4];
         sizeInfo[0] = (byte)data.Length;

@@ -12,8 +12,8 @@ public class ClientHandleNetworkData {
         Logger.Log("Initializing network package handlers.");
 
         packets = new Dictionary<int, PacketHandler> {
-            { (int)ServerPackets.SConnectionOK, HandleConnectionOK }
-
+            { (int)ServerPackets.SConnectionOK, HandleConnectionOK },
+            { (int)ServerPackets.SFrameUpdate, HandleFrameUpdate }
         };
     }
 
@@ -40,5 +40,12 @@ public class ClientHandleNetworkData {
         Logger.Log(msg);
 
         ClientTCP.ThankYouServer();
+    }
+
+    private static void HandleFrameUpdate(byte[] data) {
+        // size || |id|size| .... data .... |id|size| .... data ....
+        
+
+
     }
 }
