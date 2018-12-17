@@ -23,7 +23,7 @@ public class ServerAPI : MonoBehaviour {
     }
 
     private void SerializeFrame() {
-
+        
         PacketBuffer buffer = new PacketBuffer();
 
         int numSyncedBehaviours = syncedBehaviours.Count;

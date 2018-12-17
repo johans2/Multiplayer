@@ -19,17 +19,7 @@ public abstract class SyncedBehaviour : MonoBehaviour {
     /// <summary>
     /// Reading data from the server.
     /// </summary>
-    public virtual void Deserialize() {
+    public virtual void Deserialize(byte[] data) {
         
     }
-
-
-    
-
-    void Update () {
-		
-	}
-
-
-
 }
