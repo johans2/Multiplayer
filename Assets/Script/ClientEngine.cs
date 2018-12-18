@@ -5,18 +5,17 @@ using System;
 
 public class ClientEngine : MonoBehaviour {
 
-    public static List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
+    public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
 
-
-    private void RequestSpawnObject(Action<GameObject> gameObject) {
-        throw new NotImplementedException();
+    private ClientTCPConnection clientTCP;
+    
+    private void Awake() {
+        ClientPacketHandler packetHandler = new ClientPacketHandler(this);
+        clientTCP = new ClientTCPConnection(packetHandler);
+        clientTCP.ConnectToServer();
     }
-
-    private void RequestDeleteObject() {
-        throw new NotImplementedException();
-    }
-
-    public static void DeserializeFrame(byte[] frameData) {
+    
+    public void DeserializeFrame(byte[] frameData) {
 
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(frameData);
@@ -42,12 +41,9 @@ public class ClientEngine : MonoBehaviour {
                 behaviour.Deserialize(data);
             }
         }
-
-        //Debug.Log(string.Format("Received data for {0} objects", numSyncedBehaviours));
-        
     }
 
-    private static SyncedBehaviour GetSyncedBehaviour(int id) {
+    private SyncedBehaviour GetSyncedBehaviour(int id) {
 
         foreach(var syncedBehaviour in syncedBehaviours) {
             if(syncedBehaviour.ID == id) {
@@ -57,6 +53,14 @@ public class ClientEngine : MonoBehaviour {
 
         return null;
 
+    }
+
+    private void RequestSpawnObject(Action<GameObject> gameObject) {
+        throw new NotImplementedException();
+    }
+
+    private void RequestDeleteObject() {
+        throw new NotImplementedException();
     }
 
 }

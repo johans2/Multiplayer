@@ -6,23 +6,22 @@ public class TestClient : MonoBehaviour {
 
     public List<SyncedBehaviour> testObjects = new List<SyncedBehaviour>();
 
-    ClientEngine api;
+    ClientEngine engine;
 
-	IEnumerator Start () {
-        ClientPacketHandler.InitializePackageHandlers();
-        ClientTCP.ConnectToServer();
-
-        yield return null;
-
+	private void Start () {
+        /*
+        engine = gameObject.AddComponent<ClientEngine>();
         ClientEngine.syncedBehaviours = testObjects;
-        api = gameObject.AddComponent<ClientEngine>();
 
         Logger.Log(string.Format("Client has {0} synced obejcts.", ClientEngine.syncedBehaviours.Count));
+        */
 	}
 
 
     private void OnApplicationQuit() {
-        ClientTCP.Disconnect();
+        /*
+        ClientTCPConnection.Disconnect();
+        */
     }
 
 }

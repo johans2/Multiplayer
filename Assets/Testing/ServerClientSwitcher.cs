@@ -9,12 +9,12 @@ public class ServerClientSwitcher : MonoBehaviour {
 
 	void Start () {
         if(isServer) {
-            TestServer s = gameObject.AddComponent<TestServer>();
-            s.testObjects = testObjects;
+            ServerEngine se = gameObject.AddComponent<ServerEngine>();
+            se.syncedBehaviours = testObjects;
         }
         else {
-            TestClient c = gameObject.AddComponent<TestClient>();
-            c.testObjects = testObjects;
+            ClientEngine ce = gameObject.AddComponent<ClientEngine>();
+            ce.syncedBehaviours = testObjects;
         }
 	}
 }

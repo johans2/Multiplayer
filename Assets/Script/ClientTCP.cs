@@ -5,17 +5,22 @@ using System.Net.Sockets;
 using System.Net;
 using System;
 
-public class ClientTCP {
+public class ClientTCPConnection {
 
+    private ClientPacketHandler packetHandler;
     private static Socket _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private byte[] _asyncBuffer = new byte[1024];
-
-    public static void ConnectToServer() {
+    
+    public ClientTCPConnection(ClientPacketHandler packetHandler) {
+        this.packetHandler = packetHandler;
+    }
+    
+    public void ConnectToServer() {
         Logger.Log("Connecting to server..");
         _clientSocket.BeginConnect("127.0.0.1", 5555, new AsyncCallback(ConnectCallback), _clientSocket);
     }
 
-    private static void ConnectCallback(IAsyncResult result) {
+    private void ConnectCallback(IAsyncResult result) {
         _clientSocket.EndConnect(result);
 
         Logger.Log("Connected to server. Receiving data..");
@@ -25,7 +30,7 @@ public class ClientTCP {
         }
     }
 
-    private static void OnReceive() {
+    private void OnReceive() {
         byte[] _sizeInfo = new byte[4];
         byte[] _receivedBuffer = new byte[1024];
 
@@ -60,7 +65,7 @@ public class ClientTCP {
                 }
 
                 // Handle network information
-                ClientPacketHandler.HandlePacket(data);
+                packetHandler.HandlePacket(data);
             }
         }
         catch(Exception ex) {
@@ -68,11 +73,11 @@ public class ClientTCP {
         }
     }
 
-    public static void SendData(byte[] data) {
+    public void SendData(byte[] data) {
         _clientSocket.Send(data);
     }
 
-    public static void ThankYouServer() {
+    public void ThankYouServer() {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteInteger((int)ClientPackets.CThankYou);
         buffer.WriteString("Connection acknowledge by client");
@@ -80,7 +85,7 @@ public class ClientTCP {
         buffer.Dispose();
     }
 
-    public static void Disconnect() {
+    public void Disconnect() {
         Debug.Log("Disconnecting client");
         _clientSocket.Close();
     }

@@ -5,12 +5,17 @@ using UnityEngine;
 
 public class ClientPacketHandler {
 
-    public ClientEngine clientAPI; // TODO: make better reference.
-
+    private ClientEngine engine;
     private delegate void PacketHandler(byte[] data);
     private static Dictionary<int, PacketHandler> packets;
+    
 
-    public static void InitializePackageHandlers() {
+    public ClientPacketHandler(ClientEngine engine) {
+        this.engine = engine;
+        InitializePackageHandlers();
+    }
+    
+    public void InitializePackageHandlers() {
         Logger.Log("Initializing network package handlers.");
 
         packets = new Dictionary<int, PacketHandler> {
@@ -19,7 +24,7 @@ public class ClientPacketHandler {
         };
     }
 
-    public static void HandlePacket(byte[] data) {
+    public void HandlePacket(byte[] data) {
         int packetNum;
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
@@ -32,7 +37,7 @@ public class ClientPacketHandler {
         }
     }
 
-    private static void HandleConnectionOK(byte[] data) {
+    private void HandleConnectionOK(byte[] data) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
         buffer.ReadInteger();
@@ -41,11 +46,10 @@ public class ClientPacketHandler {
 
         Logger.Log(msg);
 
-        ClientTCP.ThankYouServer();
+        //ClientTCPConnection.ThankYouServer();
     }
 
-    private static void HandleFrameUpdate(byte[] data) {
-        // Send to clietn api..?
-        ClientEngine.DeserializeFrame(data);
+    private void HandleFrameUpdate(byte[] data) {
+        engine.DeserializeFrame(data);
     }
 }
