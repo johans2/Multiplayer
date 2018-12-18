@@ -6,14 +6,14 @@ public class TestServer : MonoBehaviour {
 
     public List<SyncedBehaviour> testObjects = new List<SyncedBehaviour>();
 
-    ServerAPI api;
+    ServerEngine api;
     
 
 	IEnumerator Start () {
-        ServerHandleNetworkData.InitializePackageHandlers();
+        ServerPacketHandler.InitializePackageHandlers();
         ServerTCP.SetupServer();
 
-        api = gameObject.AddComponent<ServerAPI>();
+        api = gameObject.AddComponent<ServerEngine>();
 
         yield return null;
 

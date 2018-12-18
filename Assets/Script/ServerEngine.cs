@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerAPI : MonoBehaviour {
+public class ServerEngine : MonoBehaviour {
     
     public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
 
@@ -22,8 +22,7 @@ public class ServerAPI : MonoBehaviour {
 
     public static void SpawnObject(GameObject prefab) {
         PacketBuffer buffer = new PacketBuffer();
-
-
+        
 
     }
 
@@ -53,7 +52,7 @@ public class ServerAPI : MonoBehaviour {
             buffer.WriteBytes(data);
         }
 
-        //Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numSyncedBehaviours));
+        //ssionDebug.Log(string.Format("Sending data for {0} synced obejcts, ", numSyncedBehaviours));
 
         ServerTCP.SendData(buffer.ToArray());
     }

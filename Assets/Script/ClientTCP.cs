@@ -60,7 +60,7 @@ public class ClientTCP {
                 }
 
                 // Handle network information
-                ClientHandleNetworkData.HandleNetworkInformation(data);
+                ClientPacketHandler.HandlePacket(data);
             }
         }
         catch(Exception ex) {

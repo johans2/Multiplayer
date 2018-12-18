@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class ClientAPI : MonoBehaviour {
+public class ClientEngine : MonoBehaviour {
 
     public static List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
 

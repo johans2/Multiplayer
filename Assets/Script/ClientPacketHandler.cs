@@ -1,21 +1,25 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ServerHandleNetworkData {
+public class ClientPacketHandler {
 
-    private delegate void PacketHandler(int index, byte[] data);
+    public ClientEngine clientAPI; // TODO: make better reference.
+
+    private delegate void PacketHandler(byte[] data);
     private static Dictionary<int, PacketHandler> packets;
 
     public static void InitializePackageHandlers() {
         Logger.Log("Initializing network package handlers.");
 
         packets = new Dictionary<int, PacketHandler> {
-            { (int)ClientPackets.CThankYou, HandleThankYou }
+            { (int)ServerPackets.SConnectionOK, HandleConnectionOK },
+            { (int)ServerPackets.SFrameUpdate, HandleFrameUpdate }
         };
     }
 
-    public static void HandleNetworkInformation(int index, byte[] data) {
+    public static void HandlePacket(byte[] data) {
         int packetNum;
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
@@ -24,11 +28,11 @@ public class ServerHandleNetworkData {
         PacketHandler handler;
 
         if(packets.TryGetValue(packetNum, out handler)) {
-            handler.Invoke(index, data);
+            handler.Invoke(data);
         }
     }
 
-    private static void HandleThankYou(int index, byte[] data) {
+    private static void HandleConnectionOK(byte[] data) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
         buffer.ReadInteger();
@@ -36,6 +40,12 @@ public class ServerHandleNetworkData {
         buffer.Dispose();
 
         Logger.Log(msg);
+
+        ClientTCP.ThankYouServer();
     }
 
+    private static void HandleFrameUpdate(byte[] data) {
+        // Send to clietn api..?
+        ClientEngine.DeserializeFrame(data);
+    }
 }
