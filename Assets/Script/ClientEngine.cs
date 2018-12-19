@@ -19,7 +19,6 @@ public class ClientEngine : MonoBehaviour {
     }
 
     private void LateUpdate() {
-        Debug.Log("Frames in queue: " + frameQueue.Count);
         while(frameQueue.Count > 0) {
             DeserializeFrame((byte[])frameQueue.Dequeue());
         }

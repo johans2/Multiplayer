@@ -5,14 +5,16 @@ using UnityEngine;
 public class TransformSync : SyncedBehaviour {
 
     public float speed = 10;
+    private bool move = true;
 
     public void Update() {
-        if(ServerClientSwitcher.IsServer) {
+        if(ServerClientSwitcher.IsServer && move) {
             transform.Rotate(new Vector3(0, speed * Time.deltaTime, 0));
             transform.position = new Vector3(transform.position.x, Mathf.Sin(Time.timeSinceLevelLoad * (speed / 50)),transform.position.y);
-            if(Input.GetKeyDown(KeyCode.Space)) {
-                speed += 10;
-            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space)) {
+            move = !move;
         }
     }
     

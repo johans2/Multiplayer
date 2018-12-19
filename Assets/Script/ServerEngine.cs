@@ -9,7 +9,7 @@ public class ServerEngine : MonoBehaviour {
     private ServerTCPConnection serverTCP;
 
     int objectID = 0;
-    int sendFrame = 5;
+    int sendFrame = 60;
     int frame = 0;
 
     
@@ -40,7 +40,7 @@ public class ServerEngine : MonoBehaviour {
     }
 
     private void SerializeFrame() {
-        
+        Debug.Log("Serializing frame..");
         PacketBuffer buffer = new PacketBuffer();
 
         int numSyncedBehaviours = syncedBehaviours.Count;

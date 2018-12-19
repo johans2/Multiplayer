@@ -9,9 +9,10 @@ public class ClientTCPConnection {
 
     private ClientPacketHandler packetHandler;
     private static Socket _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    private byte[] _asyncBuffer = new byte[1024];
     private bool receive = false;
     
+    //private byte[] _asyncBuffer = new byte[1024];
+
     public ClientTCPConnection(ClientPacketHandler packetHandler) {
         this.packetHandler = packetHandler;
     }

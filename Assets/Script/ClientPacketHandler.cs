@@ -50,6 +50,7 @@ public class ClientPacketHandler {
     }
 
     private void HandleFrameUpdate(byte[] data) {
+        Debug.Log("Got a frame update!");
         engine.QueueFrame(data);
     }
 }
