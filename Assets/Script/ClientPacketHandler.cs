@@ -20,7 +20,8 @@ public class ClientPacketHandler {
 
         packets = new Dictionary<int, PacketHandler> {
             { (int)ServerPackets.SConnectionOK, HandleConnectionOK },
-            { (int)ServerPackets.SFrameUpdate, HandleFrameUpdate }
+            { (int)ServerPackets.SFrameUpdate, HandleFrameUpdate },
+            { (int)ServerPackets.SSpawnObject, HandleSpawnObject }
         };
     }
 
@@ -45,12 +46,16 @@ public class ClientPacketHandler {
         buffer.Dispose();
 
         Logger.Log(msg);
-
-        //ClientTCPConnection.ThankYouServer();
     }
 
     private void HandleFrameUpdate(byte[] data) {
         Debug.Log("Got a frame update!");
         engine.QueueFrame(data);
     }
+
+    private void HandleSpawnObject(byte[] data) {
+        PacketBuffer buffer = new PacketBuffer();
+        buffer.WriteBytes(data);
+    }
+
 }

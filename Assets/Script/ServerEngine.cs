@@ -39,7 +39,6 @@ public class ServerEngine : MonoBehaviour {
     }
 
     private void SerializeFrame() {
-        Debug.Log("Serializing frame..");
         PacketBuffer buffer = new PacketBuffer();
 
         int numSyncedBehaviours = syncedBehaviours.Count;

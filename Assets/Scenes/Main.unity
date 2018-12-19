@@ -448,7 +448,7 @@ MonoBehaviour:
   - {fileID: 2043706891}
   - {fileID: 416167694}
   - {fileID: 954915567}
-  isServer: 0
+  isServer: 1
 --- !u!4 &694152812
 Transform:
   m_ObjectHideFlags: 0
