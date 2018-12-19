@@ -34,7 +34,7 @@ public class ClientTCPConnection {
 
     private void OnReceive() {
         byte[] _sizeInfo = new byte[4];
-        byte[] _receivedBuffer = new byte[1024];
+        //byte[] _receivedBuffer = new byte[1024];
 
         int totalRead = 0;
         int currentRead = 0;
