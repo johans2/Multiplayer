@@ -7,18 +7,21 @@ public class ClientEngine : MonoBehaviour {
 
     public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
 
-    private Queue<byte[]> frameQueue = new Queue<byte[]>();
+    private Queue frameQueue = Queue.Synchronized(new Queue());
     private ClientTCPConnection clientTCP;
     
     private void Awake() {
         ClientPacketHandler packetHandler = new ClientPacketHandler(this);
         clientTCP = new ClientTCPConnection(packetHandler);
+        
+
         clientTCP.ConnectToServer();
     }
 
     private void LateUpdate() {
-        if(frameQueue.Count > 0) {
-            DeserializeFrame(frameQueue.Dequeue());
+        Debug.Log("Frames in queue: " + frameQueue.Count);
+        while(frameQueue.Count > 0) {
+            DeserializeFrame((byte[])frameQueue.Dequeue());
         }
     }
 
@@ -27,7 +30,11 @@ public class ClientEngine : MonoBehaviour {
     }
 
     private void DeserializeFrame(byte[] frameData) {
-
+        if(frameData == null) {
+            Debug.LogWarning("Received a frame is null.");
+            return;
+        }
+        
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(frameData);
         buffer.ReadInteger(); // Packet id int

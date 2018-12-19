@@ -43,7 +43,7 @@ public class TransformSync : SyncedBehaviour {
         transform.rotation = Quaternion.identity * Quaternion.Euler(receivedRotation);
 
 
-        Debug.Log(string.Format("Deserialized object , rot = {0}", receivedRotation));
+        //Debug.Log(string.Format("Deserialized object , rot = {0}", receivedRotation));
     }
 
 

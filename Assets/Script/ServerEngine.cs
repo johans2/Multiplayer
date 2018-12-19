@@ -20,10 +20,10 @@ public class ServerEngine : MonoBehaviour {
     }
     
     private void LateUpdate() {
-        SerializeFrame();
         frame++;
 
         if(frame == sendFrame) {
+            SerializeFrame();
             frame = 0;
         }
     }
