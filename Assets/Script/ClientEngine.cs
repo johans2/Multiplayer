@@ -7,6 +7,7 @@ public class ClientEngine : MonoBehaviour {
 
     public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
 
+    private Queue<byte[]> frameQueue = new Queue<byte[]>();
     private ClientTCPConnection clientTCP;
     
     private void Awake() {
@@ -14,8 +15,18 @@ public class ClientEngine : MonoBehaviour {
         clientTCP = new ClientTCPConnection(packetHandler);
         clientTCP.ConnectToServer();
     }
-    
-    public void DeserializeFrame(byte[] frameData) {
+
+    private void LateUpdate() {
+        if(frameQueue.Count > 0) {
+            DeserializeFrame(frameQueue.Dequeue());
+        }
+    }
+
+    public void QueueFrame(byte[] frame) {
+        frameQueue.Enqueue(frame);
+    }
+
+    private void DeserializeFrame(byte[] frameData) {
 
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(frameData);
@@ -61,6 +72,10 @@ public class ClientEngine : MonoBehaviour {
 
     private void RequestDeleteObject() {
         throw new NotImplementedException();
+    }
+
+    private void OnApplicationQuit() {
+        clientTCP.Disconnect();
     }
 
 }

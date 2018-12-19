@@ -9,7 +9,7 @@ public class ServerEngine : MonoBehaviour {
     private ServerTCPConnection serverTCP;
 
     int objectID = 0;
-    int sendFrame = 10;
+    int sendFrame = 5;
     int frame = 0;
 
     
@@ -20,10 +20,10 @@ public class ServerEngine : MonoBehaviour {
     }
     
     private void LateUpdate() {
+        SerializeFrame();
         frame++;
 
         if(frame == sendFrame) {
-            SerializeFrame();
             frame = 0;
         }
     }

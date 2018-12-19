@@ -50,6 +50,6 @@ public class ClientPacketHandler {
     }
 
     private void HandleFrameUpdate(byte[] data) {
-        engine.DeserializeFrame(data);
+        engine.QueueFrame(data);
     }
 }

@@ -10,6 +10,7 @@ public class ClientTCPConnection {
     private ClientPacketHandler packetHandler;
     private static Socket _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private byte[] _asyncBuffer = new byte[1024];
+    private bool receive = false;
     
     public ClientTCPConnection(ClientPacketHandler packetHandler) {
         this.packetHandler = packetHandler;
@@ -22,10 +23,10 @@ public class ClientTCPConnection {
 
     private void ConnectCallback(IAsyncResult result) {
         _clientSocket.EndConnect(result);
-
+        receive = true;
         Logger.Log("Connected to server. Receiving data..");
 
-        while(true) {
+        while(receive) {
             OnReceive();
         }
     }
@@ -87,6 +88,7 @@ public class ClientTCPConnection {
 
     public void Disconnect() {
         Debug.Log("Disconnecting client");
+        receive = false;
         _clientSocket.Close();
     }
 
