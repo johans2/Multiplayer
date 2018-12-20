@@ -53,7 +53,7 @@ public class ClientPacketHandler {
     }
 
     private void HandleSpawnObject(byte[] data) {
-        engine.SpawnSyncedObject(data);
+        engine.QueueObjectSpawn(data);
     }
 
 }

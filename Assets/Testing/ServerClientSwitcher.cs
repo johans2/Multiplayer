@@ -11,18 +11,48 @@ public class ServerClientSwitcher : MonoBehaviour {
     public List<SyncedBehaviour> testObjects = new List<SyncedBehaviour>();
     public bool isServer;
 
+    ServerEngine s;
+    ClientEngine c;
+
 	void Start () {
         if(isServer) {
             //ServerEngine se = gameObject.AddComponent<ServerEngine>();
             //se.syncedBehaviours = testObjects;
-            Instantiate(serverEngine);
+            s = Instantiate(serverEngine);
             IsServer = true;
         }
         else {
             //ClientEngine ce = gameObject.AddComponent<ClientEngine>();
             //ce.syncedBehaviours = testObjects;
-            Instantiate(clientEngine);
+            c = Instantiate(clientEngine);
             IsServer = false;
         }
 	}
+
+    private void Update() {
+        if(IsServer) {
+            UpdateServer();
+        }
+        else {
+            UpdateClient();
+        }
+    }
+
+    private void UpdateServer() {
+        if(Input.GetKeyDown(KeyCode.Alpha1)) {
+            s.SpawnObject(testObjects[0].gameObject, Vector3.zero, Vector3.zero, Vector3.one);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha2)) {
+            s.SpawnObject(testObjects[1].gameObject, new Vector3(-1,0,0), Vector3.zero, Vector3.one);
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha3)) {
+            s.SpawnObject(testObjects[2].gameObject, new Vector3(1, 0, 0), Vector3.zero, Vector3.one);
+        }
+
+    }
+
+    private void UpdateClient() {
+
+
+    }
 }

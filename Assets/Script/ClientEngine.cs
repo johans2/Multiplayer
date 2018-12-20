@@ -13,7 +13,8 @@ public class ClientEngine : MonoBehaviour {
     private SyncedPrefabRegistry registry;
     private ClientTCPConnection clientTCP;
     private Queue frameQueue = Queue.Synchronized(new Queue());
-    
+    private Queue spawnObjectQueue = Queue.Synchronized(new Queue());
+
     private void Awake() {
         Assert.IsNotNull(registryPrefab, "Missing prefab ergistry.");
         registry = Instantiate(registryPrefab);
@@ -24,6 +25,10 @@ public class ClientEngine : MonoBehaviour {
     }
 
     private void LateUpdate() {
+        while(spawnObjectQueue.Count > 0) {
+            SpawnSyncedObject((byte[])spawnObjectQueue.Dequeue());
+        }
+
         while(frameQueue.Count > 0) {
             DeserializeFrame((byte[])frameQueue.Dequeue());
         }
@@ -31,6 +36,10 @@ public class ClientEngine : MonoBehaviour {
 
     public void QueueFrameUpdate(byte[] frameData) {
         frameQueue.Enqueue(frameData);
+    }
+
+    public void QueueObjectSpawn(byte[] objectData) {
+        spawnObjectQueue.Enqueue(objectData);
     }
 
     private void DeserializeFrame(byte[] frameData) {
@@ -60,7 +69,7 @@ public class ClientEngine : MonoBehaviour {
         }
     }
 
-    public void SpawnSyncedObject(byte[] spawnData) {
+    private void SpawnSyncedObject(byte[] spawnData) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(spawnData);
 

@@ -41,7 +41,8 @@ public class ServerEngine : MonoBehaviour {
         SyncedBehaviour[] syncedScripts = go.GetComponentsInChildren<SyncedBehaviour>();
 
         foreach(var syncedBehaviour in syncedScripts) {
-            syncedBehaviour.ID = syncedBehaviourID++;
+            syncedBehaviour.ID = syncedBehaviourID;
+            syncedBehaviourID++;
         }
 
         syncedBehaviours.AddRange(syncedScripts);
@@ -83,7 +84,7 @@ public class ServerEngine : MonoBehaviour {
             buffer.WriteBytes(data);
         }
 
-        //ssionDebug.Log(string.Format("Sending data for {0} synced obejcts, ", numSyncedBehaviours));
+        Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numSyncedBehaviours));
 
         serverTCP.SendData(buffer.ToArray());
     }
