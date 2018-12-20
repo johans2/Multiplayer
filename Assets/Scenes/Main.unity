@@ -393,6 +393,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a84568a8a4637584fb515d6e96d93728, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  serverEngine: {fileID: 114172251019628472, guid: 82e61e250a4fd404ea2de92ccf2524f6,
+    type: 2}
+  clientEngine: {fileID: 114798534863984144, guid: 7920629cb748c9d4f9177ee7f8957c3d,
+    type: 2}
   testObjects:
   - {fileID: 2043706891}
   - {fileID: 416167694}

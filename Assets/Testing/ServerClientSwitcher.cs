@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ServerClientSwitcher : MonoBehaviour {
 
+    public ServerEngine serverEngine;
+    public ClientEngine clientEngine;
     public static bool IsServer { get; private set; }
 
     public List<SyncedBehaviour> testObjects = new List<SyncedBehaviour>();
@@ -11,13 +13,15 @@ public class ServerClientSwitcher : MonoBehaviour {
 
 	void Start () {
         if(isServer) {
-            ServerEngine se = gameObject.AddComponent<ServerEngine>();
-            se.syncedBehaviours = testObjects;
+            //ServerEngine se = gameObject.AddComponent<ServerEngine>();
+            //se.syncedBehaviours = testObjects;
+            Instantiate(serverEngine);
             IsServer = true;
         }
         else {
-            ClientEngine ce = gameObject.AddComponent<ClientEngine>();
-            ce.syncedBehaviours = testObjects;
+            //ClientEngine ce = gameObject.AddComponent<ClientEngine>();
+            //ce.syncedBehaviours = testObjects;
+            Instantiate(clientEngine);
             IsServer = false;
         }
 	}

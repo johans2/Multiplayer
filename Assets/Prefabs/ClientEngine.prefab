@@ -9,30 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1948810278683628}
+  m_RootGameObject: {fileID: 1520855033996756}
   m_IsPrefabAsset: 1
---- !u!1 &1948810278683628
+--- !u!1 &1520855033996756
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4353608168992720}
-  - component: {fileID: 114866253984732960}
+  - component: {fileID: 4634524680463602}
+  - component: {fileID: 114798534863984144}
   m_Layer: 0
-  m_Name: TestRegistry
+  m_Name: ClientEngine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4353608168992720
+--- !u!4 &4634524680463602
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1948810278683628}
+  m_GameObject: {fileID: 1520855033996756}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,18 +40,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114866253984732960
+--- !u!114 &114798534863984144
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1948810278683628}
+  m_GameObject: {fileID: 1520855033996756}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7b1ac83975982a4b89366a97a8558da, type: 3}
+  m_Script: {fileID: 11500000, guid: 312cef9907686fe4aa1881699fcf429d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncablePrefabs:
-  - {fileID: 1118199011988284, guid: 0f2065da33d6c3e4a995abb5b19b4696, type: 2}
-  - {fileID: 1451310604122520, guid: de9c072e4404b4a4aba70af35ae5ea9d, type: 2}
-  - {fileID: 1382248950120734, guid: 01945fa5c4fc8324b8211ebcf6042ded, type: 2}
+  registryPrefab: {fileID: 114866253984732960, guid: 37ef668ab946a9748b1a0957db23caf4,
+    type: 2}
+  syncedBehaviours: []

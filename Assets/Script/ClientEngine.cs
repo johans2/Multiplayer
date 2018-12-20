@@ -6,15 +6,17 @@ using UnityEngine.Assertions;
 
 public class ClientEngine : MonoBehaviour {
 
-    public SyncedPrefabRegistry prefabRegistry;
+    public SyncedPrefabRegistry registryPrefab;
 
     public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>(); // Make private
 
+    private SyncedPrefabRegistry registry;
     private ClientTCPConnection clientTCP;
     private Queue frameQueue = Queue.Synchronized(new Queue());
     
     private void Awake() {
-        Assert.IsNotNull(prefabRegistry, "Missing prefab ergistry.");
+        Assert.IsNotNull(registryPrefab, "Missing prefab ergistry.");
+        registry = Instantiate(registryPrefab);
 
         ClientPacketHandler packetHandler = new ClientPacketHandler(this);
         clientTCP = new ClientTCPConnection(packetHandler);
@@ -69,7 +71,7 @@ public class ClientEngine : MonoBehaviour {
         Vector3 scale = buffer.ReadVector3();
 
 
-        GameObject prefab = prefabRegistry.GetPrefab(prefabID);
+        GameObject prefab = registry.GetPrefab(prefabID);
         GameObject go = Instantiate(prefab, position, Quaternion.Euler(rotation));
         go.transform.localScale = scale;
 

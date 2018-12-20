@@ -5,18 +5,20 @@ using UnityEngine.Assertions;
 
 public class ServerEngine : MonoBehaviour {
 
-    public SyncedPrefabRegistry prefabRegistry;
+    public SyncedPrefabRegistry registryPrefab;
 
     public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
     public int serverFrameRate = 20;
 
+    private SyncedPrefabRegistry registry;
     private ServerTCPConnection serverTCP;
 
     int syncedBehaviourID = 0;
     
     private void Awake() {
-        Assert.IsNotNull(prefabRegistry);
+        Assert.IsNotNull(registryPrefab);
 
+        registry = Instantiate(registryPrefab);
         ServerPacketHandler packetHandler = new ServerPacketHandler(this);
         serverTCP = new ServerTCPConnection(packetHandler);
         serverTCP.SetupServer();
@@ -46,7 +48,7 @@ public class ServerEngine : MonoBehaviour {
 
         // Send the spawndata to all clients.
         PacketBuffer buffer = new PacketBuffer();
-        int prefabID = prefabRegistry.GetPrefabID(prefab);
+        int prefabID = registryPrefab.GetPrefabID(prefab);
         buffer.WriteInteger((int)ServerPackets.SSpawnObject);
         buffer.WriteInteger(prefabID);
         buffer.WriteVector3(position);
