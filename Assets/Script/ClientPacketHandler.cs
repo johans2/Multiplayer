@@ -49,13 +49,11 @@ public class ClientPacketHandler {
     }
 
     private void HandleFrameUpdate(byte[] data) {
-        Debug.Log("Got a frame update!");
-        engine.QueueFrame(data);
+        engine.QueueFrameUpdate(data);
     }
 
     private void HandleSpawnObject(byte[] data) {
-        PacketBuffer buffer = new PacketBuffer();
-        buffer.WriteBytes(data);
+        engine.SpawnSyncedObject(data);
     }
 
 }

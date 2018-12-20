@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SyncedObjectRegistry : MonoBehaviour {
+public class SyncedPrefabRegistry : MonoBehaviour {
 
     public List<GameObject> syncablePrefabs;
-
+    
     public GameObject GetPrefab(int id) {
         return syncablePrefabs[id];
     }
@@ -20,5 +20,7 @@ public class SyncedObjectRegistry : MonoBehaviour {
 
         return id;
     }
+
+
 
 }

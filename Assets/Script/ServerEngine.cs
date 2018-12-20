@@ -1,17 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class ServerEngine : MonoBehaviour {
-    
+
+    public SyncedPrefabRegistry prefabRegistry;
+
     public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
     public int serverFrameRate = 20;
 
     private ServerTCPConnection serverTCP;
 
-    int objectID = 0;
+    int syncedBehaviourID = 0;
     
     private void Awake() {
+        Assert.IsNotNull(prefabRegistry);
+
         ServerPacketHandler packetHandler = new ServerPacketHandler(this);
         serverTCP = new ServerTCPConnection(packetHandler);
         serverTCP.SetupServer();
@@ -27,13 +32,31 @@ public class ServerEngine : MonoBehaviour {
         SerializeFrame();
     }
 
-    public static void SpawnObject(GameObject prefab) {
-        PacketBuffer buffer = new PacketBuffer();
+    public void SpawnObject(GameObject prefab, Vector3 position, Vector3 rotation, Vector3 scale) {
+        // Spawn object, set script IDs and add them to the synced list.
+        GameObject go = Instantiate(prefab, position, Quaternion.Euler(rotation));
         
+        SyncedBehaviour[] syncedScripts = go.GetComponentsInChildren<SyncedBehaviour>();
 
+        foreach(var syncedBehaviour in syncedScripts) {
+            syncedBehaviour.ID = syncedBehaviourID++;
+        }
+
+        syncedBehaviours.AddRange(syncedScripts);
+
+        // Send the spawndata to all clients.
+        PacketBuffer buffer = new PacketBuffer();
+        int prefabID = prefabRegistry.GetPrefabID(prefab);
+        buffer.WriteInteger((int)ServerPackets.SSpawnObject);
+        buffer.WriteInteger(prefabID);
+        buffer.WriteVector3(position);
+        buffer.WriteVector3(rotation);
+        buffer.WriteVector3(scale);
+
+        serverTCP.SendData(buffer.ToArray());
     }
 
-    public static void DestroyObject(SyncedBehaviour syncedBehaviour) {
+    public void DestroyObject(SyncedBehaviour syncedBehaviour) {
 
 
     }

@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.Assertions;
 
 public class ClientEngine : MonoBehaviour {
 
-    public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
+    public SyncedPrefabRegistry prefabRegistry;
 
-    private Queue frameQueue = Queue.Synchronized(new Queue());
+    public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>(); // Make private
+
     private ClientTCPConnection clientTCP;
+    private Queue frameQueue = Queue.Synchronized(new Queue());
     
     private void Awake() {
+        Assert.IsNotNull(prefabRegistry, "Missing prefab ergistry.");
+
         ClientPacketHandler packetHandler = new ClientPacketHandler(this);
         clientTCP = new ClientTCPConnection(packetHandler);
-        
-
         clientTCP.ConnectToServer();
     }
 
@@ -24,16 +27,11 @@ public class ClientEngine : MonoBehaviour {
         }
     }
 
-    public void QueueFrame(byte[] frame) {
-        frameQueue.Enqueue(frame);
+    public void QueueFrameUpdate(byte[] frameData) {
+        frameQueue.Enqueue(frameData);
     }
 
     private void DeserializeFrame(byte[] frameData) {
-        if(frameData == null) {
-            Debug.LogWarning("Received a frame is null.");
-            return;
-        }
-        
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(frameData);
         buffer.ReadInteger(); // Packet id int
@@ -58,6 +56,29 @@ public class ClientEngine : MonoBehaviour {
                 behaviour.Deserialize(data);
             }
         }
+    }
+
+    public void SpawnSyncedObject(byte[] spawnData) {
+        PacketBuffer buffer = new PacketBuffer();
+        buffer.WriteBytes(spawnData);
+
+        buffer.ReadInteger(); // Packet int id
+        int prefabID = buffer.ReadInteger();
+        Vector3 position = buffer.ReadVector3();
+        Vector3 rotation = buffer.ReadVector3();
+        Vector3 scale = buffer.ReadVector3();
+
+
+        GameObject prefab = prefabRegistry.GetPrefab(prefabID);
+        GameObject go = Instantiate(prefab, position, Quaternion.Euler(rotation));
+        go.transform.localScale = scale;
+
+        SyncedBehaviour[] syncedScrips = go.GetComponentsInChildren<SyncedBehaviour>();
+        syncedBehaviours.AddRange(syncedScrips);
+    }
+
+    private void DestroySyncedObejct() {
+
     }
 
     private SyncedBehaviour GetSyncedBehaviour(int id) {
