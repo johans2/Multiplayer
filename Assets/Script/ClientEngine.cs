@@ -72,20 +72,31 @@ public class ClientEngine : MonoBehaviour {
     private void SpawnSyncedObject(byte[] spawnData) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(spawnData);
-
         buffer.ReadInteger(); // Packet int id
+
+        // Read prefab ID
         int prefabID = buffer.ReadInteger();
-        Vector3 position = buffer.ReadVector3();
-        Vector3 rotation = buffer.ReadVector3();
-        Vector3 scale = buffer.ReadVector3();
 
-
+        // Spawn the requested prefab
         GameObject prefab = registry.GetPrefab(prefabID);
-        GameObject go = Instantiate(prefab, position, Quaternion.Euler(rotation));
-        go.transform.localScale = scale;
+        GameObject go = Instantiate(prefab);
 
-        SyncedBehaviour[] syncedScrips = go.GetComponentsInChildren<SyncedBehaviour>();
-        syncedBehaviours.AddRange(syncedScrips);
+        // Sync IDs for all SyncedBehaviour scrips on the object.
+        // NOTE:    This is dependant on the ordet of GetComponentsInChildren().
+        //          It should work but I'm not 100% sure tbh.
+        SyncedBehaviour[] syncedScripts = go.GetComponentsInChildren<SyncedBehaviour>();
+        
+        for(int i = 0; i < syncedScripts.Length; i++) {
+            syncedScripts[i].ID = buffer.ReadInteger();
+        }
+        
+        // Set the transform properties.
+        Transform goTransform = go.transform;
+        goTransform.position = buffer.ReadVector3();
+        goTransform.rotation = Quaternion.Euler(buffer.ReadVector3());
+        goTransform.localScale = buffer.ReadVector3();
+
+        syncedBehaviours.AddRange(syncedScripts);
     }
 
     private void DestroySyncedObejct() {

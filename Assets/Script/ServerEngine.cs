@@ -52,6 +52,12 @@ public class ServerEngine : MonoBehaviour {
         int prefabID = registryPrefab.GetPrefabID(prefab);
         buffer.WriteInteger((int)ServerPackets.SSpawnObject);
         buffer.WriteInteger(prefabID);
+
+        // Write the IDs to the stream.
+        foreach(var syncedBehaviour in syncedScripts) { 
+            buffer.WriteInteger(syncedBehaviour.ID);
+        }
+
         buffer.WriteVector3(position);
         buffer.WriteVector3(rotation);
         buffer.WriteVector3(scale);
