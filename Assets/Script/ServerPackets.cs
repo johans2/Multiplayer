@@ -6,7 +6,8 @@ using UnityEngine;
 public enum ServerPackets {
     SConnectionOK = 1,
     SFrameUpdate = 2,
-    SSpawnObject = 3
+    SSpawnObject = 3,
+    SDestroyObject = 4
 }
 
 // Send from client to server. Server listen for these.

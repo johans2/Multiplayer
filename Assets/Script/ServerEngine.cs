@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using System;
 
 public class ServerEngine : MonoBehaviour {
 
@@ -58,10 +59,23 @@ public class ServerEngine : MonoBehaviour {
 
         serverTCP.SendData(buffer.ToArray());
     }
+    
+    public void DestroyObject(int entityID) {
+        SyncedEntity entityToDestroy = GetEntity(entityID);
 
-    public void DestroyObject(SyncedBehaviour syncedBehaviour) {
+        if(entityToDestroy == null) {
+            Debug.LogWarningFormat("Entity with ID {0} does not exist and cannot  be destroyed.", entityID);
+            return;
+        }
 
+        syncedEntities.Remove(entityToDestroy);
+        Destroy(entityToDestroy);
 
+        PacketBuffer buffer = new PacketBuffer();
+        buffer.WriteInteger((int)ServerPackets.SDestroyObject);
+        buffer.WriteInteger(entityID);
+
+        serverTCP.SendData(buffer.ToArray());
     }
 
     private void SerializeFrame() {
@@ -88,6 +102,17 @@ public class ServerEngine : MonoBehaviour {
         Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numEntities));
 
         serverTCP.SendData(buffer.ToArray());
+    }
+
+    private SyncedEntity GetEntity(int entityID) {
+        foreach(var entity in syncedEntities) {
+            if(entity.ID == entityID) {
+                return entity;
+            }
+        }
+
+        Debug.LogWarningFormat("Entity with ID {0} does not exist", entityID);
+        return null;
     }
 
     

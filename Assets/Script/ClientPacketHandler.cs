@@ -21,7 +21,8 @@ public class ClientPacketHandler {
         packets = new Dictionary<int, PacketHandler> {
             { (int)ServerPackets.SConnectionOK, HandleConnectionOK },
             { (int)ServerPackets.SFrameUpdate, HandleFrameUpdate },
-            { (int)ServerPackets.SSpawnObject, HandleSpawnObject }
+            { (int)ServerPackets.SSpawnObject, HandleSpawnObject },
+            { (int)ServerPackets.SDestroyObject, HandleDestroyObject }
         };
     }
 
@@ -54,6 +55,10 @@ public class ClientPacketHandler {
 
     private void HandleSpawnObject(byte[] data) {
         engine.QueueObjectSpawn(data);
+    }
+
+    private void HandleDestroyObject(byte[] data) {
+        engine.QueueObjectDestroy(data);
     }
 
 }

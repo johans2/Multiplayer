@@ -14,6 +14,7 @@ public class ClientEngine : MonoBehaviour {
     private ClientTCPConnection clientTCP;
     private Queue frameQueue = Queue.Synchronized(new Queue());
     private Queue spawnObjectQueue = Queue.Synchronized(new Queue());
+    private Queue destroyObjectQueue = Queue.Synchronized(new Queue());
 
     private void Awake() {
         Assert.IsNotNull(registryPrefab, "Missing prefab ergistry.");
@@ -32,6 +33,10 @@ public class ClientEngine : MonoBehaviour {
         while(frameQueue.Count > 0) {
             DeserializeFrame((byte[])frameQueue.Dequeue());
         }
+
+        while(destroyObjectQueue.Count > 0) {
+            DestroySyncedObejct((byte[])destroyObjectQueue.Dequeue());
+        }
     }
 
     public void QueueFrameUpdate(byte[] frameData) {
@@ -40,6 +45,10 @@ public class ClientEngine : MonoBehaviour {
 
     public void QueueObjectSpawn(byte[] objectData) {
         spawnObjectQueue.Enqueue(objectData);
+    }
+
+    public void QueueObjectDestroy(byte[] objectData) {
+        destroyObjectQueue.Enqueue(objectData);
     }
 
     private void SpawnSyncedObject(byte[] spawnData) {
@@ -68,6 +77,18 @@ public class ClientEngine : MonoBehaviour {
         syncedEntities.Add(entity);
     }
 
+    private void DestroySyncedObejct(byte[] objectData) {
+        PacketBuffer buffer = new PacketBuffer();
+        buffer.WriteBytes(objectData);
+        buffer.ReadInteger(); // Packet ID int
+        int entityID = buffer.ReadInteger();
+
+        SyncedEntity entityToDestroy = GetSyncedEntity(entityID);
+        syncedEntities.Remove(entityToDestroy);
+
+        Destroy(entityToDestroy);
+    }
+
     private void DeserializeFrame(byte[] frameData) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(frameData);
@@ -79,7 +100,7 @@ public class ClientEngine : MonoBehaviour {
 
             // Read entity ID, and get it form the list.
             int entityID = buffer.ReadInteger();
-            SyncedEntity entity = GetSyncedBehaviour(entityID);
+            SyncedEntity entity = GetSyncedEntity(entityID);
             
             // Deserialize all behaviours
             foreach(var syncedBehaviour in entity.syncedBehaviours) {
@@ -90,11 +111,7 @@ public class ClientEngine : MonoBehaviour {
         }
     }
     
-    private void DestroySyncedObejct() {
-
-    }
-
-    private SyncedEntity GetSyncedBehaviour(int id) {
+    private SyncedEntity GetSyncedEntity(int id) {
 
         foreach(var entity in syncedEntities) {
             if(entity.ID == id) {
