@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SyncedEntity))]
 public abstract class SyncedBehaviour : MonoBehaviour {
-
-    public int ID;
-    public int Owner { get; private set; }
-    public bool IsControlledByMe { get; private set; }
     
     /// <summary>
     /// Sending data to the server.

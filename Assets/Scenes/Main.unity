@@ -350,9 +350,9 @@ MonoBehaviour:
   clientEngine: {fileID: 114798534863984144, guid: 7920629cb748c9d4f9177ee7f8957c3d,
     type: 2}
   testObjects:
-  - {fileID: 114808473770494356, guid: 0f2065da33d6c3e4a995abb5b19b4696, type: 2}
-  - {fileID: 114588767853638512, guid: de9c072e4404b4a4aba70af35ae5ea9d, type: 2}
-  - {fileID: 114657192726327902, guid: 01945fa5c4fc8324b8211ebcf6042ded, type: 2}
+  - {fileID: 114906495945323648, guid: 0f2065da33d6c3e4a995abb5b19b4696, type: 2}
+  - {fileID: 114396369760835860, guid: de9c072e4404b4a4aba70af35ae5ea9d, type: 2}
+  - {fileID: 114818967068518204, guid: 01945fa5c4fc8324b8211ebcf6042ded, type: 2}
   isServer: 1
 --- !u!4 &694152812
 Transform:

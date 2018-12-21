@@ -7,13 +7,13 @@ public class ServerEngine : MonoBehaviour {
 
     public SyncedPrefabRegistry registryPrefab;
 
-    public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>();
+    public List<SyncedEntity> syncedEntities = new List<SyncedEntity>();
     public int serverFrameRate = 20;
 
     private SyncedPrefabRegistry registry;
     private ServerTCPConnection serverTCP;
 
-    int syncedBehaviourID = 0;
+    int syncedEntityID = 0;
     
     private void Awake() {
         Assert.IsNotNull(registryPrefab);
@@ -37,26 +37,20 @@ public class ServerEngine : MonoBehaviour {
     public void SpawnObject(GameObject prefab, Vector3 position, Vector3 rotation, Vector3 scale) {
         // Spawn object, set script IDs and add them to the synced list.
         GameObject go = Instantiate(prefab, position, Quaternion.Euler(rotation));
+
+        SyncedEntity entity = go.GetComponent<SyncedEntity>();
+        entity.ID = syncedEntityID;
+        syncedEntityID++;
         
-        SyncedBehaviour[] syncedScripts = go.GetComponentsInChildren<SyncedBehaviour>();
-
-        foreach(var syncedBehaviour in syncedScripts) {
-            syncedBehaviour.ID = syncedBehaviourID;
-            syncedBehaviourID++;
-        }
-
-        syncedBehaviours.AddRange(syncedScripts);
+        syncedEntities.Add(entity);
 
         // Send the spawndata to all clients.
         PacketBuffer buffer = new PacketBuffer();
         int prefabID = registryPrefab.GetPrefabID(prefab);
         buffer.WriteInteger((int)ServerPackets.SSpawnObject);
         buffer.WriteInteger(prefabID);
-
-        // Write the IDs to the stream.
-        foreach(var syncedBehaviour in syncedScripts) { 
-            buffer.WriteInteger(syncedBehaviour.ID);
-        }
+        buffer.WriteInteger(entity.ID);
+        
 
         buffer.WriteVector3(position);
         buffer.WriteVector3(rotation);
@@ -73,24 +67,25 @@ public class ServerEngine : MonoBehaviour {
     private void SerializeFrame() {
         PacketBuffer buffer = new PacketBuffer();
 
-        int numSyncedBehaviours = syncedBehaviours.Count;
+        int numEntities = syncedEntities.Count;
 
         buffer.WriteInteger((int)ServerPackets.SFrameUpdate);
-        buffer.WriteInteger(numSyncedBehaviours);
+        buffer.WriteInteger(numEntities);
         
         // TODO: use C# job system for this?
-        foreach(var syncedBehaviour in syncedBehaviours) {
+        foreach(var entity in syncedEntities) {
 
-            int id = syncedBehaviour.ID;
-            byte[] data = syncedBehaviour.Serialize();
-            int dataSize = data.Length;
+            buffer.WriteInteger(entity.ID);
 
-            buffer.WriteInteger(id);
-            buffer.WriteInteger(dataSize);
-            buffer.WriteBytes(data);
+            foreach(var syncedBehaviour in entity.syncedBehaviours) {
+                byte[] data = syncedBehaviour.Serialize();
+                int dataSize = data.Length;
+                buffer.WriteInteger(dataSize);
+                buffer.WriteBytes(data);
+            }
         }
 
-        Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numSyncedBehaviours));
+        Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numEntities));
 
         serverTCP.SendData(buffer.ToArray());
     }

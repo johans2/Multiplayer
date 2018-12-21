@@ -8,7 +8,7 @@ public class ClientEngine : MonoBehaviour {
 
     public SyncedPrefabRegistry registryPrefab;
 
-    public List<SyncedBehaviour> syncedBehaviours = new List<SyncedBehaviour>(); // Make private
+    private List<SyncedEntity> syncedEntities = new List<SyncedEntity>(); // Make private
 
     private SyncedPrefabRegistry registry;
     private ClientTCPConnection clientTCP;
@@ -42,33 +42,6 @@ public class ClientEngine : MonoBehaviour {
         spawnObjectQueue.Enqueue(objectData);
     }
 
-    private void DeserializeFrame(byte[] frameData) {
-        PacketBuffer buffer = new PacketBuffer();
-        buffer.WriteBytes(frameData);
-        buffer.ReadInteger(); // Packet id int
-
-        int numSyncedBehaviours = buffer.ReadInteger();
-
-        for(int i = 0; i < numSyncedBehaviours; i++) {
-
-            // Read the data for the synced behaviour
-            int id = buffer.ReadInteger();
-            int dataSize = buffer.ReadInteger();
-            byte[] data = buffer.ReadBytes(dataSize);
-
-            // Get the object from the synced object list
-            SyncedBehaviour behaviour = GetSyncedBehaviour(id);
-            
-            if(behaviour == null) {
-                Logger.Log("Receiving information about a synced objects that does not exist on this client.");
-                continue;
-            }
-            else {
-                behaviour.Deserialize(data);
-            }
-        }
-    }
-
     private void SpawnSyncedObject(byte[] spawnData) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(spawnData);
@@ -81,14 +54,10 @@ public class ClientEngine : MonoBehaviour {
         GameObject prefab = registry.GetPrefab(prefabID);
         GameObject go = Instantiate(prefab);
 
-        // Sync IDs for all SyncedBehaviour scrips on the object.
-        // NOTE:    This is dependant on the ordet of GetComponentsInChildren().
-        //          It should work but I'm not 100% sure tbh.
-        SyncedBehaviour[] syncedScripts = go.GetComponentsInChildren<SyncedBehaviour>();
-        
-        for(int i = 0; i < syncedScripts.Length; i++) {
-            syncedScripts[i].ID = buffer.ReadInteger();
-        }
+        // Set the ID from the received server data
+        SyncedEntity entity = go.GetComponent<SyncedEntity>();
+        int entityID = buffer.ReadInteger();
+        entity.ID = entityID;
         
         // Set the transform properties.
         Transform goTransform = go.transform;
@@ -96,18 +65,40 @@ public class ClientEngine : MonoBehaviour {
         goTransform.rotation = Quaternion.Euler(buffer.ReadVector3());
         goTransform.localScale = buffer.ReadVector3();
 
-        syncedBehaviours.AddRange(syncedScripts);
+        syncedEntities.Add(entity);
     }
 
+    private void DeserializeFrame(byte[] frameData) {
+        PacketBuffer buffer = new PacketBuffer();
+        buffer.WriteBytes(frameData);
+        buffer.ReadInteger(); // Packet id int
+
+        int numEntities = buffer.ReadInteger();
+
+        for(int i = 0; i < numEntities; i++) {
+
+            // Read entity ID, and get it form the list.
+            int entityID = buffer.ReadInteger();
+            SyncedEntity entity = GetSyncedBehaviour(entityID);
+            
+            // Deserialize all behaviours
+            foreach(var syncedBehaviour in entity.syncedBehaviours) {
+                int dataSize = buffer.ReadInteger();
+                byte[] data = buffer.ReadBytes(dataSize);
+                syncedBehaviour.Deserialize(data);
+            }
+        }
+    }
+    
     private void DestroySyncedObejct() {
 
     }
 
-    private SyncedBehaviour GetSyncedBehaviour(int id) {
+    private SyncedEntity GetSyncedBehaviour(int id) {
 
-        foreach(var syncedBehaviour in syncedBehaviours) {
-            if(syncedBehaviour.ID == id) {
-                return syncedBehaviour;
+        foreach(var entity in syncedEntities) {
+            if(entity.ID == id) {
+                return entity;
             }
         }
 
