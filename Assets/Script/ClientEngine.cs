@@ -7,9 +7,8 @@ using UnityEngine.Assertions;
 public class ClientEngine : MonoBehaviour {
 
     public SyncedPrefabRegistry registryPrefab;
-
-    private List<SyncedEntity> syncedEntities = new List<SyncedEntity>(); // Make private
-
+    
+    private List<SyncedEntity> syncedEntities = new List<SyncedEntity>();
     private SyncedPrefabRegistry registry;
     private ClientTCPConnection clientTCP;
     private Queue frameQueue = Queue.Synchronized(new Queue());
@@ -75,6 +74,8 @@ public class ClientEngine : MonoBehaviour {
         goTransform.localScale = buffer.ReadVector3();
 
         syncedEntities.Add(entity);
+        
+        buffer.Dispose();
     }
 
     private void DestroySyncedObejct(byte[] objectData) {
@@ -86,7 +87,9 @@ public class ClientEngine : MonoBehaviour {
         SyncedEntity entityToDestroy = GetSyncedEntity(entityID);
         syncedEntities.Remove(entityToDestroy);
 
-        Destroy(entityToDestroy);
+        Destroy(entityToDestroy.gameObject);
+
+        buffer.Dispose();
     }
 
     private void DeserializeFrame(byte[] frameData) {
@@ -109,6 +112,8 @@ public class ClientEngine : MonoBehaviour {
                 syncedBehaviour.Deserialize(data);
             }
         }
+
+        buffer.Dispose();
     }
     
     private SyncedEntity GetSyncedEntity(int id) {

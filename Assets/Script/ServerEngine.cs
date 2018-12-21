@@ -7,14 +7,12 @@ using System;
 public class ServerEngine : MonoBehaviour {
 
     public SyncedPrefabRegistry registryPrefab;
-
-    public List<SyncedEntity> syncedEntities = new List<SyncedEntity>();
     public int serverFrameRate = 20;
 
+    private List<SyncedEntity> syncedEntities = new List<SyncedEntity>();
     private SyncedPrefabRegistry registry;
     private ServerTCPConnection serverTCP;
-
-    int syncedEntityID = 0;
+    private int syncedEntityID = 0;
     
     private void Awake() {
         Assert.IsNotNull(registryPrefab);
@@ -58,6 +56,8 @@ public class ServerEngine : MonoBehaviour {
         buffer.WriteVector3(scale);
 
         serverTCP.SendData(buffer.ToArray());
+
+        buffer.Dispose();
     }
     
     public void DestroyObject(int entityID) {
@@ -69,13 +69,15 @@ public class ServerEngine : MonoBehaviour {
         }
 
         syncedEntities.Remove(entityToDestroy);
-        Destroy(entityToDestroy);
+        Destroy(entityToDestroy.gameObject);
 
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteInteger((int)ServerPackets.SDestroyObject);
         buffer.WriteInteger(entityID);
 
         serverTCP.SendData(buffer.ToArray());
+
+        buffer.Dispose();
     }
 
     private void SerializeFrame() {
@@ -102,6 +104,8 @@ public class ServerEngine : MonoBehaviour {
         Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numEntities));
 
         serverTCP.SendData(buffer.ToArray());
+
+        buffer.Dispose();
     }
 
     private SyncedEntity GetEntity(int entityID) {

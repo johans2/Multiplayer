@@ -49,6 +49,18 @@ public class ServerClientSwitcher : MonoBehaviour {
             s.SpawnObject(testObjects[2].gameObject, new Vector3(1, 0, 0), Vector3.zero, Vector3.one);
         }
 
+        if(Input.GetKeyDown(KeyCode.X)) {
+            SyncedEntity[] entities = FindObjectsOfType<SyncedEntity>();
+
+            if(entities.Length > 0) {
+                int index = Random.Range(0, entities.Length);
+                Debug.Log("Destroying object " + entities[index].ID);
+                s.DestroyObject(entities[index].ID);
+            }
+
+
+        }
+
     }
 
     private void UpdateClient() {
