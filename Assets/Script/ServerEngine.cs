@@ -13,7 +13,8 @@ public class ServerEngine : MonoBehaviour {
     private SyncedPrefabRegistry registry;
     private ServerTCPConnection serverTCP;
     private int syncedEntityID = 0;
-    
+    private Queue clientInput = Queue.Synchronized(new Queue());
+
     private void Awake() {
         Assert.IsNotNull(registryPrefab);
 
@@ -31,6 +32,18 @@ public class ServerEngine : MonoBehaviour {
         }
 
         SerializeFrame();
+
+        Debug.Log("Client inputs: " + clientInput.Count);
+        
+        if(clientInput.Count > 0) {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes((byte[])clientInput.Dequeue());
+            int packInt = buffer.ReadInteger();
+            string msg = buffer.ReadString();
+            Logger.Log(msg);
+            Debug.Log(msg);
+            buffer.Dispose();
+        }
     }
 
     public void SpawnObject(GameObject prefab, Vector3 position, Vector3 rotation, Vector3 scale) {
@@ -78,6 +91,16 @@ public class ServerEngine : MonoBehaviour {
 
         buffer.Dispose();
     }
+
+    public void QueueClientInput(byte[] data) {
+        clientInput.Enqueue(data);
+    }
+
+    private void ParseClientInput(byte[] data) {
+        PacketBuffer buffer = new PacketBuffer();
+
+    }
+
 
     private void SerializeFrame() {
         PacketBuffer buffer = new PacketBuffer();

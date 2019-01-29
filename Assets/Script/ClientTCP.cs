@@ -91,13 +91,9 @@ public class ClientTCPConnection {
     public void ThankYouServer() {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteInteger((int)ClientPackets.CThankYou);
-        buffer.WriteString("Connection acknowledge by client");
-        byte[] lotsOfBytes = new byte[2048];
-        for(int i = 0; i < lotsOfBytes.Length; i++) {
-            lotsOfBytes[i] = 1;
-        }
+        buffer.WriteString("HELLO SERVER " + Time.timeSinceLevelLoad);
+        
 
-        buffer.WriteBytes(lotsOfBytes);
         SendDataToServer(buffer.ToArray());
         buffer.Dispose();
     }

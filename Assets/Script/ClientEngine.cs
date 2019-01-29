@@ -47,6 +47,7 @@ public class ClientEngine : MonoBehaviour {
                 break;
             case ServerPackets.SSpawnObject:
                 SpawnSyncedObject(buffer);
+                SendHelloToServer(); // TESTING!
                 break;
             case ServerPackets.SDestroyObject:
                 SpawnSyncedObject(buffer);

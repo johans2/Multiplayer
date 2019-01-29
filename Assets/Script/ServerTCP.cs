@@ -98,7 +98,7 @@ public class Client {
     }
 
     public void StartClient() {
-        socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket); // This fucks things up..
+        //socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket); // This fucks things up..
         closing = false;
         clientThread = new Thread(DoRecieve);
         clientThread.Start();
@@ -110,35 +110,13 @@ public class Client {
         }
 
     }
-
+    
     private void OnReceive(IAsyncResult result) {
         while(!closing) {
             Recieve();
         }
-
-        /*
-        Socket socket = (Socket)result.AsyncState;
-
-        try {
-            int received = socket.EndReceive(result);
-            if(received <= 0) {
-                CloseClient(index);
-            }
-            else {
-                byte[] dataBuffer = new byte[received];
-                Debug.Log("Received " + received + " bytes form client.");
-                Array.Copy(_buffer, dataBuffer, received);
-                packetHandler.HandlePacket(index, dataBuffer);
-                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket);
-            }
-        }
-        catch {
-            CloseClient(index);
-        }
-        */
     }
-
-    // WIP:
+    
     private void Recieve() {
         byte[] _sizeInfo = new byte[4];
 
@@ -149,7 +127,7 @@ public class Client {
             currentRead = totalRead = socket.Receive(_sizeInfo);
             Debug.Log("Sizeinfo: " + _sizeInfo.Length);
             if(totalRead <= 0) {
-                Logger.Log("Client disconnected (readbuffer 0 bytes)");
+                return;
             }
             else {
                 while(totalRead < _sizeInfo.Length && currentRead > 0) {
@@ -175,7 +153,7 @@ public class Client {
 
                 // Handle the received packet..
                 Debug.Log("Received " + data.Length + " bytes from client " + index);
-
+                packetHandler.HandlePacket(index, data);
             }
 
         }

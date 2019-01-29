@@ -35,7 +35,7 @@ public class ServerPacketHandler {
     }
 
     private void HandleThankYou(int index, byte[] data) {
-        PacketBuffer buffer = new PacketBuffer();
+        /*PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(data);
         buffer.ReadInteger();
         string msg = buffer.ReadString();
@@ -43,6 +43,8 @@ public class ServerPacketHandler {
 
         Debug.Log(msg);
         Logger.Log(msg);
+        */
+        engine.QueueClientInput(data);
     }
 
 }
