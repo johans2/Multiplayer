@@ -50,7 +50,6 @@ public class ServerEngine : MonoBehaviour {
         buffer.WriteInteger(prefabID);
         buffer.WriteInteger(entity.ID);
         
-
         buffer.WriteVector3(position);
         buffer.WriteVector3(rotation);
         buffer.WriteVector3(scale);

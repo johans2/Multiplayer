@@ -11,9 +11,7 @@ public class ClientEngine : MonoBehaviour {
     private List<SyncedEntity> syncedEntities = new List<SyncedEntity>();
     private SyncedPrefabRegistry registry;
     private ClientTCPConnection clientTCP;
-    private Queue frameQueue = Queue.Synchronized(new Queue());
-    private Queue spawnObjectQueue = Queue.Synchronized(new Queue());
-    private Queue destroyObjectQueue = Queue.Synchronized(new Queue());
+    private Queue serverUpdates = Queue.Synchronized(new Queue());
 
     private void Awake() {
         Assert.IsNotNull(registryPrefab, "Missing prefab ergistry.");
@@ -25,36 +23,36 @@ public class ClientEngine : MonoBehaviour {
     }
 
     private void LateUpdate() {
-        while(spawnObjectQueue.Count > 0) {
-            SpawnSyncedObject((byte[])spawnObjectQueue.Dequeue());
-        }
-
-        while(frameQueue.Count > 0) {
-            DeserializeFrame((byte[])frameQueue.Dequeue());
-        }
-
-        while(destroyObjectQueue.Count > 0) {
-            DestroySyncedObejct((byte[])destroyObjectQueue.Dequeue());
+        while(serverUpdates.Count > 0) {
+            ParseServerUpdate((byte[])serverUpdates.Dequeue());
         }
     }
 
-    public void QueueFrameUpdate(byte[] frameData) {
-        frameQueue.Enqueue(frameData);
+    public void QueueServerUpdate(byte[] serverUpdate) {
+        serverUpdates.Enqueue(serverUpdate);
     }
-
-    public void QueueObjectSpawn(byte[] objectData) {
-        spawnObjectQueue.Enqueue(objectData);
-    }
-
-    public void QueueObjectDestroy(byte[] objectData) {
-        destroyObjectQueue.Enqueue(objectData);
-    }
-
-    private void SpawnSyncedObject(byte[] spawnData) {
+    
+    private void ParseServerUpdate(byte[] serverUpdate) {
         PacketBuffer buffer = new PacketBuffer();
-        buffer.WriteBytes(spawnData);
-        buffer.ReadInteger(); // Packet int id
+        buffer.WriteBytes(serverUpdate);
+        ServerPackets updateType = (ServerPackets)buffer.ReadInteger();
 
+        switch(updateType) {
+            case ServerPackets.SFrameUpdate:
+                DeserializeFrame(buffer);
+                break;
+            case ServerPackets.SSpawnObject:
+                SpawnSyncedObject(buffer);
+                break;
+            case ServerPackets.SDestroyObject:
+                SpawnSyncedObject(buffer);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SpawnSyncedObject(PacketBuffer buffer) {
         // Read prefab ID
         int prefabID = buffer.ReadInteger();
 
@@ -78,10 +76,7 @@ public class ClientEngine : MonoBehaviour {
         buffer.Dispose();
     }
 
-    private void DestroySyncedObejct(byte[] objectData) {
-        PacketBuffer buffer = new PacketBuffer();
-        buffer.WriteBytes(objectData);
-        buffer.ReadInteger(); // Packet ID int
+    private void DestroySyncedObejct(PacketBuffer buffer) {
         int entityID = buffer.ReadInteger();
 
         SyncedEntity entityToDestroy = GetSyncedEntity(entityID);
@@ -92,11 +87,7 @@ public class ClientEngine : MonoBehaviour {
         buffer.Dispose();
     }
 
-    private void DeserializeFrame(byte[] frameData) {
-        PacketBuffer buffer = new PacketBuffer();
-        buffer.WriteBytes(frameData);
-        buffer.ReadInteger(); // Packet id int
-
+    private void DeserializeFrame(PacketBuffer buffer) {
         int numEntities = buffer.ReadInteger();
 
         for(int i = 0; i < numEntities; i++) {

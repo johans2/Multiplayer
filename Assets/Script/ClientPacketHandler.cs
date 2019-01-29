@@ -50,15 +50,15 @@ public class ClientPacketHandler {
     }
 
     private void HandleFrameUpdate(byte[] data) {
-        engine.QueueFrameUpdate(data);
+        engine.QueueServerUpdate(data);
     }
 
     private void HandleSpawnObject(byte[] data) {
-        engine.QueueObjectSpawn(data);
+        engine.QueueServerUpdate(data);
     }
 
     private void HandleDestroyObject(byte[] data) {
-        engine.QueueObjectDestroy(data);
+        engine.QueueServerUpdate(data);
     }
 
 }
