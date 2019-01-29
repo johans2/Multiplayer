@@ -100,7 +100,7 @@ public class ServerEngine : MonoBehaviour {
             }
         }
 
-        Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numEntities));
+        //Debug.Log(string.Format("Sending data for {0} synced obejcts, ", numEntities));
 
         serverTCP.SendData(buffer.ToArray());
 

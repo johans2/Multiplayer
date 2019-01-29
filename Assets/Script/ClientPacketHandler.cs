@@ -55,6 +55,7 @@ public class ClientPacketHandler {
 
     private void HandleSpawnObject(byte[] data) {
         engine.QueueServerUpdate(data);
+        engine.SendHelloToServer();
     }
 
     private void HandleDestroyObject(byte[] data) {

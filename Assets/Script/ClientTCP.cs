@@ -8,7 +8,7 @@ using System;
 public class ClientTCPConnection {
 
     private ClientPacketHandler packetHandler;
-    private static Socket _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    private static Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private bool receive = false;
     
     //private byte[] _asyncBuffer = new byte[1024];
@@ -19,14 +19,14 @@ public class ClientTCPConnection {
     
     public void ConnectToServer() {
         Logger.Log("Connecting to server..");
-        _clientSocket.BeginConnect("127.0.0.1", 5555, new AsyncCallback(ConnectCallback), _clientSocket);
+        clientSocket.BeginConnect("127.0.0.1", 5555, new AsyncCallback(ConnectCallback), clientSocket);
     }
 
     private void ConnectCallback(IAsyncResult result) {
-        _clientSocket.EndConnect(result);
+        clientSocket.EndConnect(result);
         receive = true;
         Logger.Log("Connected to server. Receiving data..");
-
+        
         while(receive) {
             OnReceive();
         }
@@ -40,13 +40,13 @@ public class ClientTCPConnection {
         int currentRead = 0;
 
         try {
-            currentRead = totalRead = _clientSocket.Receive(_sizeInfo);
+            currentRead = totalRead = clientSocket.Receive(_sizeInfo);
             if(totalRead <= 0) {
                 Logger.Log("You are not connected to the server (readbuffer 0 bytes)");
             }
             else {
                 while(totalRead < _sizeInfo.Length && currentRead > 0) {
-                    currentRead = _clientSocket.Receive(_sizeInfo, totalRead, _sizeInfo.Length - totalRead, SocketFlags.None);
+                    currentRead = clientSocket.Receive(_sizeInfo, totalRead, _sizeInfo.Length - totalRead, SocketFlags.None);
                     totalRead += currentRead;
                 }
 
@@ -59,10 +59,10 @@ public class ClientTCPConnection {
                 byte[] data = new byte[messagesize];
 
                 totalRead = 0;
-                currentRead = totalRead = _clientSocket.Receive(data, totalRead, data.Length - totalRead, SocketFlags.None);
+                currentRead = totalRead = clientSocket.Receive(data, totalRead, data.Length - totalRead, SocketFlags.None);
 
                 while(totalRead < messagesize && currentRead > 0) {
-                    currentRead = _clientSocket.Receive(data, totalRead, data.Length - totalRead, SocketFlags.None);
+                    currentRead = clientSocket.Receive(data, totalRead, data.Length - totalRead, SocketFlags.None);
                     totalRead += currentRead;
                 }
 
@@ -75,22 +75,37 @@ public class ClientTCPConnection {
         }
     }
 
-    public void SendData(byte[] data) {
-        _clientSocket.Send(data);
+    // WIP:
+    public void SendDataToServer(byte[] data) {
+        byte[] sizeInfo = new byte[4];
+        sizeInfo[0] = (byte)data.Length;
+        sizeInfo[1] = (byte)(data.Length >> 8);
+        sizeInfo[2] = (byte)(data.Length >> 16);
+        sizeInfo[3] = (byte)(data.Length >> 24);
+
+        clientSocket.Send(sizeInfo);
+        clientSocket.Send(data);
+        Logger.Log("Sending " + data.Length + "bytes to the server");
     }
 
     public void ThankYouServer() {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteInteger((int)ClientPackets.CThankYou);
         buffer.WriteString("Connection acknowledge by client");
-        SendData(buffer.ToArray());
+        byte[] lotsOfBytes = new byte[2048];
+        for(int i = 0; i < lotsOfBytes.Length; i++) {
+            lotsOfBytes[i] = 1;
+        }
+
+        buffer.WriteBytes(lotsOfBytes);
+        SendDataToServer(buffer.ToArray());
         buffer.Dispose();
     }
 
     public void Disconnect() {
         Debug.Log("Disconnecting client");
         receive = false;
-        _clientSocket.Close();
+        clientSocket.Close();
     }
 
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using UnityEngine;
 
 public class ServerTCPConnection {
@@ -87,20 +88,35 @@ public class Client {
     public string ip;
     public Socket socket;
     public bool closing = false;
-
-    private ServerPacketHandler packetHandler;
-    private byte[] _buffer = new byte[1024];
     
+    private ServerPacketHandler packetHandler;
+    private byte[] _buffer = new byte[1024]; // TODO: This is a probelm. The client can only send updated a 1024 bytes atm.
+    private Thread clientThread;
+
     public Client(ServerPacketHandler packetHandler) {
         this.packetHandler = packetHandler;
     }
 
     public void StartClient() {
-        socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket);
+        socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket); // This fucks things up..
         closing = false;
+        clientThread = new Thread(DoRecieve);
+        clientThread.Start();
+    }
+
+    private void DoRecieve() {
+        while(!closing) {
+            Recieve();
+        }
+
     }
 
     private void OnReceive(IAsyncResult result) {
+        while(!closing) {
+            Recieve();
+        }
+
+        /*
         Socket socket = (Socket)result.AsyncState;
 
         try {
@@ -110,6 +126,7 @@ public class Client {
             }
             else {
                 byte[] dataBuffer = new byte[received];
+                Debug.Log("Received " + received + " bytes form client.");
                 Array.Copy(_buffer, dataBuffer, received);
                 packetHandler.HandlePacket(index, dataBuffer);
                 socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket);
@@ -118,11 +135,61 @@ public class Client {
         catch {
             CloseClient(index);
         }
+        */
+    }
+
+    // WIP:
+    private void Recieve() {
+        byte[] _sizeInfo = new byte[4];
+
+        int totalRead = 0;
+        int currentRead = 0;
+
+        try {
+            currentRead = totalRead = socket.Receive(_sizeInfo);
+            Debug.Log("Sizeinfo: " + _sizeInfo.Length);
+            if(totalRead <= 0) {
+                Logger.Log("Client disconnected (readbuffer 0 bytes)");
+            }
+            else {
+                while(totalRead < _sizeInfo.Length && currentRead > 0) {
+                    currentRead = socket.Receive(_sizeInfo, totalRead, _sizeInfo.Length - totalRead, SocketFlags.None);
+                    totalRead += currentRead;
+                }
+
+                int messagesize = 0;
+                messagesize |= _sizeInfo[0];
+                messagesize |= (_sizeInfo[1] << 8);
+                messagesize |= (_sizeInfo[2] << 16);
+                messagesize |= (_sizeInfo[3] << 24);
+
+                byte[] data = new byte[messagesize];
+
+                totalRead = 0;
+                currentRead = totalRead = socket.Receive(data, totalRead, data.Length - totalRead, SocketFlags.None);
+
+                while(totalRead < messagesize && currentRead > 0) {
+                    currentRead = socket.Receive(data, totalRead, data.Length - totalRead, SocketFlags.None);
+                    totalRead += currentRead;
+                }
+
+                // Handle the received packet..
+                Debug.Log("Received " + data.Length + " bytes from client " + index);
+
+            }
+
+        }
+        catch(Exception ex) {
+            Logger.Log("You are not connected to the server: " + ex.Message);
+            //CloseClient(index);
+        }
+
 
     }
 
     private void CloseClient(int index) {
         closing = true;
+        clientThread.Join();
         Logger.Log(string.Format("Connection form {0}  has been terminated", ip));
         // Player left the game
         socket.Close();

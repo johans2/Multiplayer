@@ -41,6 +41,7 @@ public class ServerPacketHandler {
         string msg = buffer.ReadString();
         buffer.Dispose();
 
+        Debug.Log(msg);
         Logger.Log(msg);
     }
 

@@ -31,7 +31,11 @@ public class ClientEngine : MonoBehaviour {
     public void QueueServerUpdate(byte[] serverUpdate) {
         serverUpdates.Enqueue(serverUpdate);
     }
-    
+
+    public void SendHelloToServer() {
+        clientTCP.ThankYouServer();
+    }
+
     private void ParseServerUpdate(byte[] serverUpdate) {
         PacketBuffer buffer = new PacketBuffer();
         buffer.WriteBytes(serverUpdate);
@@ -126,7 +130,7 @@ public class ClientEngine : MonoBehaviour {
     private void RequestDeleteObject() {
         throw new NotImplementedException();
     }
-
+    
     private void OnApplicationQuit() {
         clientTCP.Disconnect();
     }
