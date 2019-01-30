@@ -11,8 +11,6 @@ public class ClientTCPConnection {
     private static Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private bool receive = false;
     
-    //private byte[] _asyncBuffer = new byte[1024];
-
     public ClientTCPConnection(ClientPacketHandler packetHandler) {
         this.packetHandler = packetHandler;
     }
@@ -34,8 +32,7 @@ public class ClientTCPConnection {
 
     private void OnReceive() {
         byte[] _sizeInfo = new byte[4];
-        //byte[] _receivedBuffer = new byte[1024];
-
+        
         int totalRead = 0;
         int currentRead = 0;
 
@@ -45,6 +42,7 @@ public class ClientTCPConnection {
                 Logger.Log("You are not connected to the server (readbuffer 0 bytes)");
             }
             else {
+                // Read message size info
                 while(totalRead < _sizeInfo.Length && currentRead > 0) {
                     currentRead = clientSocket.Receive(_sizeInfo, totalRead, _sizeInfo.Length - totalRead, SocketFlags.None);
                     totalRead += currentRead;
@@ -56,6 +54,7 @@ public class ClientTCPConnection {
                 messagesize |= (_sizeInfo[2] << 16);
                 messagesize |= (_sizeInfo[3] << 24);
 
+                // Read message data
                 byte[] data = new byte[messagesize];
 
                 totalRead = 0;
@@ -66,12 +65,13 @@ public class ClientTCPConnection {
                     totalRead += currentRead;
                 }
 
-                // Handle network information
+                // Handle the received packet
                 packetHandler.HandlePacket(data);
             }
         }
         catch(Exception ex) {
             Logger.Log("You are not connected to the server: " + ex.Message);
+            Disconnect();
         }
     }
 
