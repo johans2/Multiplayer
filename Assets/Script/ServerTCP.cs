@@ -98,7 +98,6 @@ public class Client {
     }
 
     public void StartClient() {
-        //socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(OnReceive), socket); // This fucks things up..
         closing = false;
         clientThread = new Thread(DoRecieve);
         clientThread.Start();
@@ -109,12 +108,6 @@ public class Client {
             Recieve();
         }
 
-    }
-    
-    private void OnReceive(IAsyncResult result) {
-        while(!closing) {
-            Recieve();
-        }
     }
     
     private void Recieve() {
